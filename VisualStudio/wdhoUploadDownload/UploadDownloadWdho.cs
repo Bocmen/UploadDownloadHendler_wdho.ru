@@ -1,4 +1,12 @@
-﻿using System;
+/*
+|
+|
+| Bocmen https://vk.com/denisivanov220
++_____________________________________
+|
+|
+*/
+using System;
 using HtmlAgilityPack;
 using System.Collections.Generic;
 using System.Text;
