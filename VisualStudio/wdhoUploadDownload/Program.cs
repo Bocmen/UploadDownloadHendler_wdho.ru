@@ -66,7 +66,7 @@ namespace UploadDownloadWdho
         /// В ответе у них Json содержит ошибки и не получается десериализовать поэтому было принято решения написать парсер значений
         /// </summary>
         /// <param name="Json">Json txt</param>
-        /// <param name="Name">Нназвание искомой переменной</param>
+        /// <param name="Name">Название искомой переменной</param>
         /// <returns>значение переменной</returns>
         private static string ParsJson(string Json, string Name)
         {
@@ -153,19 +153,19 @@ namespace UploadDownloadWdho
             /// </summary>
             public string error;
             /// <summary>
-            /// Псевдосылка на загрузку файла
+            /// Псевдоссылка на загрузку файла
             /// </summary>
             public string url;
             /// <summary>
-            /// Псевдосылка на удаление файла
+            /// Псевдоссылка на удаление файла
             /// </summary>
             public string delete_url;
             /// <summary>
-            /// Сылка на страницу с информацией о файле
+            /// Ссылка на страницу с информацией о файле
             /// </summary>
             public string info_url;
             /// <summary>
-            /// Сылка на статисктику файла
+            /// Ссылка на статисктику файла
             /// </summary>
             public string stats_url;
         }
@@ -173,10 +173,10 @@ namespace UploadDownloadWdho
     public static class Download
     {
         /// <summary>
-        /// Загрузка файла по псевдосылке
+        /// Загрузка файла по псевдоссылке
         /// </summary>
         /// <param name="PatchSave">Куда сохранить</param>
-        /// <param name="Url">Псевдосылка на файл</param>
+        /// <param name="Url">Псевдоссылка на файл</param>
         public static void DownloadFile(string PatchSave, string Url)
         {
             WebClient webClient = new WebClient();
@@ -185,7 +185,7 @@ namespace UploadDownloadWdho
         /// <summary>
         /// Получить массив byte файла
         /// </summary>
-        /// <param name="Url">Псевдосылка на файл</param>
+        /// <param name="Url">Псевдоссылка на файл</param>
         /// <returns>массив byte файла</returns>
         public static byte[] GetBytesFile(string Url)
         {
@@ -193,10 +193,10 @@ namespace UploadDownloadWdho
             return webClient.DownloadData(GetUrlFinal(Url));
         }
         /// <summary>
-        /// Получение сылки на загрузку файла
+        /// Получение ссылки на загрузку файла
         /// </summary>
-        /// <param name="Url">Псевдосылка на файл</param>
-        /// <returns>сылка на файл</returns>
+        /// <param name="Url">Псевдоссылка на файл</param>
+        /// <returns>ссылка на файл</returns>
         public static string GetUrlFinal(string Url)
         {
             string GetCookie = null;
@@ -208,12 +208,12 @@ namespace UploadDownloadWdho
             return Resul;
         }
         /// <summary>
-        /// Получения сылки со страницей на которой есть сылка на загрузку
+        /// Получения ссылки со страницей на которой есть ссылка на загрузку
         /// </summary>
-        /// <param name="Url">Сылка на страницу со сылкой</param>
-        /// <param name="UrlAppend">Псевдосылка на файл</param>
+        /// <param name="Url">Ссылка на страницу со сылкой</param>
+        /// <param name="UrlAppend">Псевдоссылка на файл</param>
         /// <param name="Cookie">Записать Cookie которые будут обнаружены</param>
-        /// <returns>Сылка на сайт с финальной сылкой загрузки</returns>
+        /// <returns>Ссылка на сайт с финальной ссылкой загрузки</returns>
         private static string GetUrlOne(string Url, string UrlAppend, ref string Cookie)
         {
             string Resul = getHTML(Url, ref Cookie);
@@ -225,7 +225,7 @@ namespace UploadDownloadWdho
         /// Специальный метод получения Html кода поддерживающий запись предыдущей страницы посещения 
         /// и Cookie которые автоматически записываются при их наличии
         /// </summary>
-        /// <param name="url">Сылка получения Html</param>
+        /// <param name="url">Ссылка получения Html</param>
         /// <param name="Cookie">Cookie которые записываются или принимаются для использования</param>
         /// <param name="Refer">Предыдущая страница</param>
         /// <returns>HTML код страницы</returns>
