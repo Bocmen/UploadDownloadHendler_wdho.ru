@@ -85,39 +85,28 @@ namespace UploadDownloadWdho
         /// <returns>Набор ключей</returns>
         private static DatKeys GetKeysData()
         {
-            HtmlWeb web = new HtmlWeb();
-            HtmlDocument htmlDocument = web.Load(Setting.UrlHomePage);
-            HtmlNodeCollection nodes = htmlDocument.DocumentNode.SelectNodes("//script");
-
-            // Поиск нужного скрипта
-            foreach (var Elem in nodes)
-            {
-                if (Elem.InnerText.Contains(Setting.SearchScript))
-                {
-                    DatKeys datKeys = new DatKeys();
-                    // Поиск переменных
-                    // Поиск ссылки
-                    string Resul = Elem.InnerText.Remove(0, Elem.InnerText.IndexOf(Setting.SearchScript));
-                    Resul = Resul.Remove(Resul.IndexOf('\''), Resul.Length - Resul.IndexOf('\''));
-                    datKeys.Url = Resul;
-                    // Поиск название папки (обычно он null)
-                    Resul = Elem.InnerText.Remove(0, Elem.InnerText.IndexOf(Setting.Search_fileFolder));
-                    datKeys.fileFolder = Resul.Substring(Resul.IndexOf('\'') + 1, Resul.Remove(0, Resul.IndexOf('\'') + 1).IndexOf('\''));
-                    // Поиск maxChunkSize (хз для чего он)
-                    Resul = Elem.InnerText.Remove(0, Elem.InnerText.IndexOf(Setting.Search_browserXHR2Support));
-                    Resul = Resul.Remove(0, Resul.IndexOf(Setting.Search_maxChunkSize));
-                    Resul = Resul.Substring(Resul.IndexOf('='), Resul.IndexOf(';'));
-                    datKeys.maxChunkSize = Convert.ToUInt32(Resul.Replace('=', ' ').Replace(';', ' '));
-                    // Поиск _sessionid (какой то личный индификатор "сессии")
-                    Resul = Elem.InnerText.Remove(0, Elem.InnerText.IndexOf(Setting.Search__sessionid));
-                    datKeys._sessionid = Resul.Substring(Resul.IndexOf('\'') + 1, Resul.Remove(0, Resul.IndexOf('\'') + 1).IndexOf('\''));
-                    // Поиск cTracke (какой то ещё один ключ)
-                    Resul = Elem.InnerText.Remove(0, Elem.InnerText.IndexOf(Setting.Search_cTracker));
-                    datKeys.cTracke = Resul.Substring(Resul.IndexOf('\'') + 1, Resul.Remove(0, Resul.IndexOf('\'') + 1).IndexOf('\''));
-                    return datKeys;
-                }
-            }
-            return new DatKeys();
+            // Получения HTml главной станицы загрузки
+            string Html = (new WebClient()).DownloadString(Setting.UrlHomePage); DatKeys datKeys = new DatKeys();
+            // Поиск переменных
+            // Поиск ссылки
+            string Resul = Html.Remove(0, Html.IndexOf(Setting.SearchScript));
+            Resul = Resul.Remove(Resul.IndexOf('\''), Resul.Length - Resul.IndexOf('\''));
+            datKeys.Url = Resul;
+            // Поиск название папки (обычно он null)
+            Resul = Html.Remove(0, Html.IndexOf(Setting.Search_fileFolder));
+            datKeys.fileFolder = Resul.Substring(Resul.IndexOf('\'') + 1, Resul.Remove(0, Resul.IndexOf('\'') + 1).IndexOf('\''));
+            // Поиск maxChunkSize (хз для чего он)
+            Resul = Html.Remove(0, Html.IndexOf(Setting.Search_browserXHR2Support));
+            Resul = Resul.Remove(0, Resul.IndexOf(Setting.Search_maxChunkSize));
+            Resul = Resul.Substring(Resul.IndexOf('='), Resul.IndexOf(';'));
+            datKeys.maxChunkSize = Convert.ToUInt32(Resul.Replace('=', ' ').Replace(';', ' '));
+            // Поиск _sessionid (какой то личный индификатор "сессии")
+            Resul = Html.Remove(0, Html.IndexOf(Setting.Search__sessionid));
+            datKeys._sessionid = Resul.Substring(Resul.IndexOf('\'') + 1, Resul.Remove(0, Resul.IndexOf('\'') + 1).IndexOf('\''));
+            // Поиск cTracke (какой то ещё один ключ)
+            Resul = Html.Remove(0, Html.IndexOf(Setting.Search_cTracker));
+            datKeys.cTracke = Resul.Substring(Resul.IndexOf('\'') + 1, Resul.Remove(0, Resul.IndexOf('\'') + 1).IndexOf('\''));
+            return datKeys;
         }
         /// <summary>
         /// Структура для ключей
@@ -129,41 +118,6 @@ namespace UploadDownloadWdho
             public string cTracke;
             public uint maxChunkSize;
             public string fileFolder;
-        }
-        /// <summary>
-        /// Информация о загруженном файле
-        /// </summary>
-        [Serializable]
-        public struct InfoFile
-        {
-            /// <summary>
-            /// Название файла
-            /// </summary>
-            public string name;
-            /// <summary>
-            /// Размер файла
-            /// </summary>
-            public string size;
-            /// <summary>
-            /// Ошибки возникшие при загрузке
-            /// </summary>
-            public string error;
-            /// <summary>
-            /// Псевдоссылка на загрузку файла
-            /// </summary>
-            public string url;
-            /// <summary>
-            /// Псевдоссылка на удаление файла
-            /// </summary>
-            public string delete_url;
-            /// <summary>
-            /// Ссылка на страницу с информацией о файле
-            /// </summary>
-            public string info_url;
-            /// <summary>
-            /// Ссылка на статисктику файла
-            /// </summary>
-            public string stats_url;
         }
     }
     public static class Download
@@ -388,5 +342,40 @@ namespace UploadDownloadWdho
                 ContentType = contenttype;
             }
         }
+    }
+    /// <summary>
+    /// Информация о загруженном файле
+    /// </summary>
+    [Serializable]
+    public struct InfoFile
+    {
+        /// <summary>
+        /// Название файла
+        /// </summary>
+        public string name;
+        /// <summary>
+        /// Размер файла
+        /// </summary>
+        public string size;
+        /// <summary>
+        /// Ошибки возникшие при загрузке
+        /// </summary>
+        public string error;
+        /// <summary>
+        /// Псевдоссылка на загрузку файла
+        /// </summary>
+        public string url;
+        /// <summary>
+        /// Псевдоссылка на удаление файла
+        /// </summary>
+        public string delete_url;
+        /// <summary>
+        /// Ссылка на страницу с информацией о файле
+        /// </summary>
+        public string info_url;
+        /// <summary>
+        /// Ссылка на статисктику файла
+        /// </summary>
+        public string stats_url;
     }
 }
