@@ -4,13 +4,16 @@
 Для хранения используется сервис [wdho.ru](https://wdho.ru/)
 
 ## Пример загрузки:
+
 ####Способ 1
+
 #####Вызываем метод загрузки файла:
 * <b>PatchFile</b> - путь к файлу
 
  `InfoFile FileRes = UploadDownloadWdho.Upload.UploadFile(string PatchFile);`
  
  ####Способ 2
+ 
  #####Вызываем метод загрузки файла:
  * <b>FileByte</b> - содержимое файл а виде массива byte
  * <b>NameFile</b> - название файла вместе с его раширением
