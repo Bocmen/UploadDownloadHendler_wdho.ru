@@ -5,7 +5,7 @@
 
 ## Пример загрузки:
 #### Способ 1
-##### Вызываем метод загрузки файла:
+##### Вызываем метод загрузки (Upload) файла:
 * <b>PatchFile</b> - путь к файлу
 
  `InfoFile FileRes = UploadDownloadWdho.Upload.UploadFile(string PatchFile);`
@@ -15,18 +15,30 @@
  * <b>FileByte</b> - содержимое файл а виде массива byte
  * <b>NameFile</b> - название файла вместе с его раширением
  
- `InfoFile FileRes = UploadDownloadWdho.UploadHendler(byte[] FileByte, string NameFile)`
+ `InfoFile FileRes = UploadDownloadWdho.UploadHendler(byte[] FileByte, string NameFile);`
  
 В обоих способах вы получаете `InfoFile` содержащий в себе:
- 1. <b>name</b> Название файла
- 2. <b>size</b> Размер файла
- 3. <b>error</b> Ошибки возникшие при загрузке
- 4. <b>url</b> Псевдосылка на загрузку файла
- 5. <b>delete_url</b> Псевдосылка на удаление файла
- 6. <b>info_url</b> Ссылка на страницу с информацией о файле
- 7. <b>stats_url</b> Ссылка на статисктику файла
+ * <b>name</b> - название файла
+ * <b>size</b> - размер файла
+ * <b>error</b> - ошибки возникшие при загрузке
+ * <b>url</b> - псевдосылка на загрузку файла
+ * <b>delete_url</b> - псевдосылка на удаление файла
+ * <b>info_url</b> - ссылка на страницу с информацией о файле
+ * <b>stats_url</b> - ссылка на статисктику файла
 
 ## Пример скачивание файла:
-* UploadDownloadWdho.Download.DownloadFile(@"ПутьКудаСохранить\НазваниеФайла.РасширениеФайла", "СсылкаНаФайл"); // Сохранение файла по ссылке
-* UploadDownloadWdho.Download.GetBytesFile("СсылкаНаФайл"); // Получение массива byte файла
+#### Способ 1
+##### Вызываем метод скачивания (Download) файла:
+* <b>PatchSave</b> - в какую папку сохранить
+* <b>Url</b> - ссылка на файл
+
+`UploadDownloadWdho.Download.DownloadFile(string PatchSave, string Url);`
+
+#### Способ 2
+##### Вызываем метод скачивания (Download) файла:
+* <b>Url</b> - ссылка на файл
+
+`byte[] file = UploadDownloadWdho.Download.GetBytesFile(string Url);`
+
+Данный метод получает содержимое файла в виде массива byte
 
