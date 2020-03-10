@@ -17,11 +17,6 @@ namespace UploadDownloadWdho
     public static class Upload
     {
         /// <summary>
-        /// Для загрузки Html
-        /// </summary>
-        private static WebClient webClient = new WebClient();
-
-        /// <summary>
         /// Загрузка файла
         /// </summary>
         /// <param name="PatchFile">Путь к файллу на диске</param>
@@ -40,13 +35,15 @@ namespace UploadDownloadWdho
         {
             DatKeys keys = GetKeysData();
             InfoFile infoFile = new InfoFile();
-            Dictionary<string, object> keyValuePairs = new Dictionary<string, object>(0);
-            keyValuePairs.Add(Setting.Search__sessionid, keys._sessionid);
-            keyValuePairs.Add(Setting.Search_cTracker, keys.cTracke);
-            keyValuePairs.Add(Setting.Search_maxChunkSize, keys.maxChunkSize);
-            keyValuePairs.Add(Setting.Search_fileFolder, keys.fileFolder);
-            keyValuePairs.Add("files[]", new FormUpload.FileParameter(FileByte, NameFile + ".txt", "application/octet-stream"));
-            var Resul = FormUpload.MultipartFormDataPost(keys.Url, "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:73.0) Gecko/20100101 Firefox/73.0", keyValuePairs);
+            Dictionary<string, object> keyValuePairs = new Dictionary<string, object>(0)
+            {
+                { Setting.Search__sessionid, keys._sessionid },
+                { Setting.Search_cTracker, keys.cTracke },
+                { Setting.Search_maxChunkSize, keys.maxChunkSize },
+                { Setting.Search_fileFolder, keys.fileFolder },
+                { "files[]", new FormUpload.FileParameter(FileByte, NameFile + ".txt", "application/octet-stream") }
+            };
+            var Resul = FormUpload.MultipartFormDataPost(keys.Url, Setting.UserAgent, keyValuePairs);
             string StrRes;
             using (StreamReader stream = new StreamReader(Resul.GetResponseStream(), Encoding.GetEncoding(Resul.CharacterSet)))
             {
@@ -105,10 +102,10 @@ namespace UploadDownloadWdho
         private static DatKeys GetKeysData()
         {
             // Получения HTml главной станицы загрузки
-            string Html = webClient.DownloadString(Setting.UrlHomePage); DatKeys datKeys = new DatKeys();
+            string Html = (new WebClient()).DownloadString(Setting.UrlHomePage); DatKeys datKeys = new DatKeys();
             // Поиск переменных
             // Поиск ссылки
-            string Resul = Html.Remove(0, Html.IndexOf(Setting.SearchScript));
+            string Resul = Html.Remove(0, Html.IndexOf(Setting.Search_Script));
             Resul = Resul.Remove(Resul.IndexOf('\''), Resul.Length - Resul.IndexOf('\''));
             datKeys.Url = Resul;
             // Поиск название папки (обычно он null)
@@ -170,7 +167,7 @@ namespace UploadDownloadWdho
         {
             string GetCookie = null;
             string Urli = GetUrlOne(Url, Url, ref GetCookie);
-            string Resul = getHTML(Urli, ref GetCookie);
+            string Resul = GetHTML(Urli, ref GetCookie);
             Resul = Resul.Remove(0, Resul.IndexOf(Setting.Search_UrlFinal));
             Resul = Resul.Substring(0, Resul.IndexOf("\""));
             Resul = Url + "?" + Resul;
@@ -185,7 +182,7 @@ namespace UploadDownloadWdho
         /// <returns>Ссылка на сайт с финальной ссылкой загрузки</returns>
         private static string GetUrlOne(string Url, string UrlAppend, ref string Cookie)
         {
-            string Resul = getHTML(Url, ref Cookie);
+            string Resul = GetHTML(Url, ref Cookie);
             Resul = Resul.Remove(0, Resul.IndexOf(String.Format(Setting.Search_UrlOne, UrlAppend)));
             Resul = Resul.Substring(0, Resul.IndexOf('\''));
             return Resul;
@@ -198,7 +195,7 @@ namespace UploadDownloadWdho
         /// <param name="Cookie">Cookie которые записываются или принимаются для использования</param>
         /// <param name="Refer">Предыдущая страница</param>
         /// <returns>HTML код страницы</returns>
-        private static string getHTML(string url, ref string Cookie, string Refer = null)
+        private static string GetHTML(string url, ref string Cookie, string Refer = null)
         {
             try
             {
@@ -206,12 +203,13 @@ namespace UploadDownloadWdho
                 httpWebRequest.AllowAutoRedirect = false;//Запрещаем автоматический редирект
                 httpWebRequest.Method = "GET"; //Можно не указывать, по умолчанию используется GET.
 
-                httpWebRequest.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:73.0) Gecko/20100101 Firefox/73.0");
-                httpWebRequest.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+                httpWebRequest.Headers.Add("User-Agent", Setting.UserAgent);
+                /*
+                httpWebRequest.Headers.Add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp;q=0.8");
                 httpWebRequest.Headers.Add("Accept-Language", "ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3");
                 httpWebRequest.Headers.Add("Upgrade-Insecure-Requests", "1");
                 httpWebRequest.Headers.Add("Host", "wdho.ru");
-                httpWebRequest.Headers.Add("Connection", "keep-alive");
+                httpWebRequest.Headers.Add("Connection", "keep-alive");*/
                 if (Cookie != null) httpWebRequest.Headers.Add("Cookie", Cookie);
 
                 if (Refer != null) httpWebRequest.Referer = Refer;
@@ -238,7 +236,7 @@ namespace UploadDownloadWdho
     {
         // Upload
         public const string UrlHomePage = @"https://wdho.ru/index.html?upload=1";
-        public const string SearchScript = @"https://wdho.ru/core/page/ajax/file_upload_handler.ajax.php?r=wdho.ru";
+        public const string Search_Script = @"https://wdho.ru/core/page/ajax/file_upload_handler.ajax.php?r=wdho.ru";
         public const string Search__sessionid = @"_sessionid:";
         public const string Search_fileFolder = @"fileFolder";
         public const string Search_maxChunkSize = @"maxChunkSize";
@@ -249,6 +247,14 @@ namespace UploadDownloadWdho
         public const string Search_UrlFinal = @"download_token";
         // Function
         public const string Search_NameFile = @"heading-1";
+        public const string Search_FileSize = @"Размер файла:";
+        public const string Search_TheFileIsDownloaded = @"Файл загружен";
+        public const string Search_TheFileWasDownloaded = @"Файл скачали";
+        public const string GetedInfoFile = @"NameFile: {0}\r\nSize: {1} MB\r\nUploadData: {2}\r\nCountDownload: {3}\r\nstats_url: {4}";
+        public const string GetStatiUrl = @"{0}~s";
+        public const string InfoFile = @"name: {0}\r\nsize: {1}\r\nerror: {2}\r\nurl: {3}\r\ndelete_url: {4}\r\ninfo_url: {5}\r\nstats_url: {6}";
+        // Common
+        public const string UserAgent = @"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:73.0) Gecko/20100101 Firefox/73.0";
     }
     /// <summary>
     /// Не моё решение
@@ -295,7 +301,6 @@ namespace UploadDownloadWdho
 
             return request.GetResponse() as HttpWebResponse;
         }
-
         private static byte[] GetMultipartFormData(Dictionary<string, object> postParameters, string boundary)
         {
             Stream formDataStream = new System.IO.MemoryStream();
@@ -348,7 +353,6 @@ namespace UploadDownloadWdho
 
             return formData;
         }
-
         public class FileParameter
         {
             public byte[] File { get; set; }
@@ -401,30 +405,31 @@ namespace UploadDownloadWdho
 
         public override string ToString()
         {
-            return String.Format("name: {0}\r\nsize: {1}\r\nerror: {2}\r\nurl: {3}\r\ndelete_url: {4}\r\ninfo_url: {5}\r\nstats_url: {6}", name, size, error, url, delete_url, info_url, stats_url);
+            return String.Format(Setting.InfoFile, name, size, error, url, delete_url, info_url, stats_url);
         }
     }
     public static class Function
     {
-        private static WebClient webClient = new WebClient();
         public static GetedInfoFile GetInfoFile(string Url)
         {
-            GetedInfoFile infoFile = new GetedInfoFile();
-            infoFile.stats_url = GetStatiUrl( Url);
-            string Html = webClient.DownloadString(Url);
+            GetedInfoFile infoFile = new GetedInfoFile
+            {
+                stats_url = GetStatiUrl(Url)
+            };
+            string Html = (new WebClient()).DownloadString(Url);
             // Получение имени
             infoFile.NameFile = Html.Remove(0, Html.IndexOf(Setting.Search_NameFile));
             infoFile.NameFile = infoFile.NameFile.Substring(infoFile.NameFile.IndexOf('>') + 1, infoFile.NameFile.IndexOf('<')-(infoFile.NameFile.IndexOf('>') + 1));
             infoFile.NameFile = infoFile.NameFile.Substring(0, infoFile.NameFile.LastIndexOf(".txt"));//Имя файла: Био.pptx.txt
             // Отсекаем ненужную часть Html
-            Html = Html.Remove(0, Html.IndexOf("Размер файла:"));
+            Html = Html.Remove(0, Html.IndexOf(Setting.Search_FileSize));
             // Получаем размер файла
             infoFile.Size = Convert.ToDouble(Html.Substring(Html.IndexOf(":") + 1, Html.IndexOf("MB") - (Html.IndexOf(":") + 1)).Replace('.',','));
             // Получение даты загрузки фйла
-            infoFile.UploadData = Html.Remove(0, Html.IndexOf("Файл загружен"));
+            infoFile.UploadData = Html.Remove(0, Html.IndexOf(Setting.Search_TheFileIsDownloaded));
             infoFile.UploadData = infoFile.UploadData.Substring(infoFile.UploadData.IndexOf(":")+1, infoFile.UploadData.IndexOf("<")- (infoFile.UploadData.IndexOf(":") + 1));
             // Получения количества загрузок
-            Html = Html.Remove(0, Html.IndexOf("Файл скачали"));
+            Html = Html.Remove(0, Html.IndexOf(Setting.Search_TheFileWasDownloaded));
             infoFile.CountDownload = Convert.ToUInt32(Html.Substring(Html.IndexOf(':') + 1, Html.IndexOf('<') - 1 - Html.IndexOf(':')));
             return infoFile;
         }
@@ -435,7 +440,7 @@ namespace UploadDownloadWdho
         /// <returns></returns>
         public static string GetStatiUrl(string UrlFile)
         {
-            return UrlFile + "~s";
+            return string.Format(Setting.GetStatiUrl, UrlFile);
         }
 
         /// <summary>
@@ -466,7 +471,7 @@ namespace UploadDownloadWdho
 
             public override string ToString()
             {
-                return String.Format("NameFile: {0}\r\nSize: {1} MB\r\nUploadData: {2}\r\nCountDownload: {3}\r\nstats_url: {4}",NameFile, Size, UploadData, CountDownload, stats_url);
+                return String.Format(Setting.GetedInfoFile, NameFile, Size, UploadData, CountDownload, stats_url);
             }
         }
     }
